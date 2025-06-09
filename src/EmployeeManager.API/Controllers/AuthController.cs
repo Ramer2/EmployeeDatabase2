@@ -27,26 +27,34 @@ public class AuthController : ControllerBase
     [Route("/api/auth")]
     public async Task<IResult> Auth(LoginUserDto user, CancellationToken cancellationToken)
     {
-        var foundAccount = await _context.Accounts
-            .Include(a => a.Role)
-            .Include(acc => acc.Employee)
-            .ThenInclude(e => e.Person)
-            .FirstOrDefaultAsync(a => string.Equals(a.Username, user.Login), cancellationToken);
-        
-        if (foundAccount == null)
-            return Results.Unauthorized();
-
-        var verificationResult = _passwordHasher.VerifyHashedPassword(foundAccount, foundAccount.Password, user.Password);
-        if (verificationResult == PasswordVerificationResult.Failed)
-            return Results.Unauthorized();
-
-        var token = new TokenDto
+        try
         {
-            AccessToken = _tokenService.GenerateToken(
-                foundAccount.Password, 
-                foundAccount.Role.Name, 
-                foundAccount.Employee.Person.Email)
-        };
-        return Results.Ok(token);
+            var foundAccount = await _context.Accounts
+                .Include(a => a.Role)
+                .Include(acc => acc.Employee)
+                .ThenInclude(e => e.Person)
+                .FirstOrDefaultAsync(a => string.Equals(a.Username, user.Login), cancellationToken);
+
+            if (foundAccount == null)
+                return Results.Unauthorized();
+
+            var verificationResult =
+                _passwordHasher.VerifyHashedPassword(foundAccount, foundAccount.Password, user.Password);
+            if (verificationResult == PasswordVerificationResult.Failed)
+                return Results.Unauthorized();
+
+            var token = new TokenDto
+            {
+                AccessToken = _tokenService.GenerateToken(
+                    foundAccount.Password,
+                    foundAccount.Role.Name,
+                    foundAccount.Employee.Person.Email)
+            };
+            return Results.Ok(token);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(ex.Message);
+        }
     }
 }
