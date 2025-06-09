@@ -26,7 +26,7 @@ public partial class EmployeeDatabaseContext : DbContext
 
     public virtual DbSet<Position> Positions { get; set; }
     
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Roles> Roles { get; set; }
     
     public virtual DbSet<Account> Accounts { get; set; }
     
@@ -140,7 +140,7 @@ public partial class EmployeeDatabaseContext : DbContext
 
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.ToTable("Accounts");
+            entity.ToTable("Account");
         
             entity.HasKey(e => e.Id);
         
@@ -164,13 +164,13 @@ public partial class EmployeeDatabaseContext : DbContext
                 .HasForeignKey(e => e.EmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
         
-            entity.HasOne(e => e.Role)
+            entity.HasOne(e => e.Roles)
                 .WithMany(r => r.Accounts)
                 .HasForeignKey(e => e.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
         
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<Roles>(entity =>
         {
             entity.ToTable("Roles");
         

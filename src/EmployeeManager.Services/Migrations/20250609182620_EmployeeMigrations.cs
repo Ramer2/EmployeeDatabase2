@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EmployeeManager.Services.Migrations
 {
     /// <inheritdoc />
-    public partial class EmployeeDbMigraton : Migration
+    public partial class EmployeeMigrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -117,7 +117,7 @@ namespace EmployeeManager.Services.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Accounts",
+                name: "Account",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -129,15 +129,15 @@ namespace EmployeeManager.Services.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Accounts", x => x.Id);
+                    table.PrimaryKey("PK_Account", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Accounts_Employee_EmployeeId",
+                        name: "FK_Account_Employee_EmployeeId",
                         column: x => x.EmployeeId,
                         principalTable: "Employee",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Accounts_Roles_RoleId",
+                        name: "FK_Account_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
                         principalColumn: "Id",
@@ -171,13 +171,13 @@ namespace EmployeeManager.Services.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_EmployeeId",
-                table: "Accounts",
+                name: "IX_Account_EmployeeId",
+                table: "Account",
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_RoleId",
-                table: "Accounts",
+                name: "IX_Account_RoleId",
+                table: "Account",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
@@ -240,7 +240,7 @@ namespace EmployeeManager.Services.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Accounts");
+                name: "Account");
 
             migrationBuilder.DropTable(
                 name: "DeviceEmployee");

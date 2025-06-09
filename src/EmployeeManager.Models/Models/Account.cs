@@ -23,7 +23,7 @@ public class Account
     [Required]
     public int RoleId { get; set; }
 
-    public virtual Role Role { get; set; } = null!;
+    public virtual Roles Roles { get; set; } = null!;
     
     public virtual Employee Employee { get; set; } = null!;
 }

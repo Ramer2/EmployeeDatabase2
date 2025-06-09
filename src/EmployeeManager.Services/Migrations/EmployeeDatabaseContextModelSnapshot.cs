@@ -44,6 +44,7 @@ namespace EmployeeManager.Services.Migrations
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .IsUnicode(true)
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
@@ -52,7 +53,7 @@ namespace EmployeeManager.Services.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Accounts", (string)null);
+                    b.ToTable("Account", (string)null);
                 });
 
             modelBuilder.Entity("EmployeeManager.Models.models.Device", b =>
@@ -258,7 +259,7 @@ namespace EmployeeManager.Services.Migrations
                     b.ToTable("Position", (string)null);
                 });
 
-            modelBuilder.Entity("EmployeeManager.Models.models.Role", b =>
+            modelBuilder.Entity("EmployeeManager.Models.models.Roles", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -284,7 +285,7 @@ namespace EmployeeManager.Services.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("EmployeeManager.Models.models.Role", "Role")
+                    b.HasOne("EmployeeManager.Models.models.Roles", "Roles")
                         .WithMany("Accounts")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -292,7 +293,7 @@ namespace EmployeeManager.Services.Migrations
 
                     b.Navigation("Employee");
 
-                    b.Navigation("Role");
+                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("EmployeeManager.Models.models.Device", b =>
@@ -368,7 +369,7 @@ namespace EmployeeManager.Services.Migrations
                     b.Navigation("Employees");
                 });
 
-            modelBuilder.Entity("EmployeeManager.Models.models.Role", b =>
+            modelBuilder.Entity("EmployeeManager.Models.models.Roles", b =>
                 {
                     b.Navigation("Accounts");
                 });

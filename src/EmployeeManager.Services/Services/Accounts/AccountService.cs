@@ -46,7 +46,7 @@ public class AccountService : IAccountService
         try
         {
             var account = await _context.Accounts
-                .Include(acc => acc.Role)
+                .Include(acc => acc.Roles)
                 .Where(acc => acc.Id == id)
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -56,7 +56,7 @@ public class AccountService : IAccountService
             return new GetSpecificAccountDto
             {
                 Username = account.Username,
-                Role = account.Role.Name
+                Role = account.Roles.Name
             };
         }
         catch (KeyNotFoundException)
@@ -92,7 +92,7 @@ public class AccountService : IAccountService
                 Username = createAccountDto.Username,
                 Password = createAccountDto.Password,
                 Employee = employee,
-                Role = role
+                Roles = role
             };
 
             account.Password = _passwordHasher.HashPassword(account, createAccountDto.Password);
@@ -142,7 +142,7 @@ public class AccountService : IAccountService
             account.Username = updateAccountDto.Username;
             account.Password = _passwordHasher.HashPassword(account, updateAccountDto.Password);
             account.Employee = employee;
-            account.Role = role;
+            account.Roles = role;
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
@@ -187,7 +187,7 @@ public class AccountService : IAccountService
         try
         {
             var user = await _context.Accounts
-                .Include(acc => acc.Role)
+                .Include(acc => acc.Roles)
                 .Where(acc => acc.Employee.Person.Email == email)
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -200,7 +200,7 @@ public class AccountService : IAccountService
             return new GetSpecificAccountDto
             {
                 Username = user.Username,
-                Role = user.Role.Name
+                Role = user.Roles.Name
             };
         }
         catch (AccessViolationException)
@@ -223,7 +223,7 @@ public class AccountService : IAccountService
         try
         {
             var user = await _context.Accounts
-                .Include(acc => acc.Role)
+                .Include(acc => acc.Roles)
                 .Include(acc => acc.Employee)
                 .ThenInclude(emp => emp.Person)
                 .Where(acc => acc.Employee.Person.Email == email)
@@ -235,7 +235,7 @@ public class AccountService : IAccountService
             if (user.Id != id)
                 throw new AccessViolationException("User can have access only to their own account.");
             
-            if (user.Role.Name != updateDto.RoleName)
+            if (user.Roles.Name != updateDto.RoleName)
                 throw new AccessViolationException("User can't change their role.");
 
             var role = await _context.Roles
@@ -246,7 +246,7 @@ public class AccountService : IAccountService
             
             user.Username = updateDto.Username;
             user.Password = _passwordHasher.HashPassword(user, updateDto.Password);
-            user.Role = role;
+            user.Roles = role;
             
             _context.Accounts.Update(user);
             await _context.SaveChangesAsync(cancellationToken);
