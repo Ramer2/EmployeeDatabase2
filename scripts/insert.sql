@@ -46,10 +46,3 @@ INSERT INTO DeviceEmployee (DeviceId, EmployeeId, IssueDate, ReturnDate) VALUES
 INSERT INTO Roles (Name) VALUES
 ('Admin'),
 ('User');
-
-INSERT INTO Accounts (Username, Password, EmployeeId, RoleId) VALUES
-('jdoe', 'password123', 1, 1),
-('jsmith', 'secure456', 2, 2),
-('ajohnson', 'alice789', 3, 2),
-('bbrown', 'bobpass321', 4, 2),
-('edavis', 'eve000', 5, 2);

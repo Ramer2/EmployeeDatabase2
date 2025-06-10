@@ -20,8 +20,4 @@
       <ProjectReference Include="..\EmployeeManager.Models\EmployeeManager.Models.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Helpers\Middleware\" />
-    </ItemGroup>
-
 </Project>
