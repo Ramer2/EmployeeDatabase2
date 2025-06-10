@@ -175,7 +175,7 @@ public class DeviceService : IDeviceService
             throw new ArgumentException("Invalid device name");
         }
 
-        if (updateDeviceDto.DeviceType == null)
+        if (updateDeviceDto.TypeId == null)
         {
             throw new ArgumentException("Invalid device type");
         }
@@ -193,7 +193,7 @@ public class DeviceService : IDeviceService
                 throw new KeyNotFoundException("Device not found");
 
             var deviceType = await _context.DeviceTypes
-                .FirstOrDefaultAsync(x => x.Name == updateDeviceDto.DeviceType, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == updateDeviceDto.TypeId, cancellationToken);
             
             if (deviceType == null)
             {
@@ -271,7 +271,7 @@ public class DeviceService : IDeviceService
                 throw new KeyNotFoundException($"Device with id {id} not found");
 
             var deviceType = await _context.DeviceTypes
-                .FirstOrDefaultAsync(x => x.Name == updateDeviceDto.DeviceType, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == updateDeviceDto.TypeId, cancellationToken);
 
             if (deviceType == null)
                 throw new AccessViolationException($"User cannot update devices which do not belong to them.");

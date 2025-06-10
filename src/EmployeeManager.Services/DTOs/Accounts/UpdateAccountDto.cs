@@ -18,12 +18,8 @@ public class UpdateAccountDto
     public string Password { get; set; } = null!;
 
     [Required]
-    [StringLength(100)]
-    [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$",
-        ErrorMessage = "The email address is not valid.")]
-    public string Email { get; set; } = null!;
+    public int EmployeeId { get; set; }
 
     [Required]
-    [StringLength(100)]
-    public string RoleName { get; set; } = null!;
+    public int RoleId { get; set; }
 }

@@ -117,18 +117,18 @@ public class AccountService : IAccountService
         {
             var employee = await _context.Employees
                 .Include(emp => emp.Person)
-                .Where(emp => emp.Person.Email == updateAccountDto.Email)
+                .Where(emp => emp.Id == updateAccountDto.EmployeeId)
                 .FirstOrDefaultAsync(cancellationToken);
             
             if (employee == null)
-                throw new KeyNotFoundException($"Employee with email {updateAccountDto.Email} does not exist.");
+                throw new KeyNotFoundException($"Employee with id {updateAccountDto.EmployeeId} does not exist.");
             
             var role = await _context.Roles
-                .Where(r => r.Name == updateAccountDto.RoleName)
+                .Where(r => r.Id == updateAccountDto.RoleId)
                 .FirstOrDefaultAsync(cancellationToken);
             
             if (role == null)
-                throw new KeyNotFoundException($"No role with role {updateAccountDto.RoleName} exists.");
+                throw new KeyNotFoundException($"No role with role id {updateAccountDto.RoleId} exists.");
 
             var account = await _context.Accounts
                 .Include(acc => acc.Employee)
@@ -137,7 +137,7 @@ public class AccountService : IAccountService
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (account == null)
-                throw new KeyNotFoundException($"No account with email {updateAccountDto.Email} exists.");
+                throw new KeyNotFoundException($"No account with id {id} exists.");
             
             account.Username = updateAccountDto.Username;
             account.Password = _passwordHasher.HashPassword(account, updateAccountDto.Password);
@@ -235,14 +235,14 @@ public class AccountService : IAccountService
             if (user.Id != id)
                 throw new AccessViolationException("User can have access only to their own account.");
             
-            if (user.Roles.Name != updateDto.RoleName)
+            if (user.Roles.Id != updateDto.RoleId)
                 throw new AccessViolationException("User can't change their role.");
 
             var role = await _context.Roles
-                .FirstOrDefaultAsync(r => r.Name.Equals(updateDto.RoleName), cancellationToken);
+                .FirstOrDefaultAsync(r => r.Id == updateDto.RoleId, cancellationToken);
             
             if (role == null)
-                throw new KeyNotFoundException($"Role with name {updateDto.RoleName} does not exist.");
+                throw new KeyNotFoundException($"Role with id {updateDto.RoleId} does not exist.");
             
             user.Username = updateDto.Username;
             user.Password = _passwordHasher.HashPassword(user, updateDto.Password);

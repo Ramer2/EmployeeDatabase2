@@ -77,10 +77,10 @@ public class ValidationMiddleware
                     var errors = "";
                     foreach (var error in result)
                     {
-                        errors += $"\n\t{error}\n";
+                        errors += $"\t{error}\n";
                     }
 
-                    throw new ApplicationException("Validation failed: " + errors);
+                    throw new ApplicationException("Validation failed: \n" + errors);
                 }
             }
             else
