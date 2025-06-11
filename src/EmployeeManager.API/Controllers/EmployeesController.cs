@@ -10,10 +10,12 @@ namespace EmployeeManager.API.controllers;
 public class EmployeesController : ControllerBase
 {
     private IEmployeeService _employeeService;
+    private readonly ILogger<EmployeesController> _logger;
 
-    public EmployeesController(IEmployeeService employeeService)
+    public EmployeesController(IEmployeeService employeeService, ILogger<EmployeesController> logger)
     {
         _employeeService = employeeService;
+        _logger = logger;
     }
 
     [Authorize(Roles = "Admin")]
@@ -21,6 +23,8 @@ public class EmployeesController : ControllerBase
     [Route("/api/employees")]
     public async Task<IResult> GetAllEmployees(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Get all employees request.");
+        
         try
         {
             var employees = await _employeeService.GetAllEmployees(cancellationToken);
@@ -29,6 +33,7 @@ public class EmployeesController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Get all employees failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }
@@ -38,6 +43,8 @@ public class EmployeesController : ControllerBase
     [Route("/api/employees/{id}")]
     public async Task<IResult> GetEmployeeById(int id, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Get employee by id request.");
+        
         if (id < 0) return Results.BadRequest("Invalid id");
         
         try
@@ -48,6 +55,7 @@ public class EmployeesController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Get employee by id failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }
@@ -57,6 +65,8 @@ public class EmployeesController : ControllerBase
     [Route("/api/employees")]
     public async Task<IResult> CreateEmployee(CreateSpecificEmployeeDto employee, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Create employee request.");
+        
         if (!ModelState.IsValid)
             return Results.BadRequest(ModelState);
         
@@ -67,10 +77,12 @@ public class EmployeesController : ControllerBase
         }
         catch (ArgumentException ex)
         {
+            _logger.LogWarning($"Create employee. {ex.Message}");
             return Results.BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Create employee failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }

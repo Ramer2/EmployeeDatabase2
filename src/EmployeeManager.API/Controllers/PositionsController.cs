@@ -1,4 +1,5 @@
-﻿using EmployeeManager.Services.Services.Positions;
+﻿using EmployeeManager.Services.Services.Employees;
+using EmployeeManager.Services.Services.Positions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +10,12 @@ namespace EmployeeManager.API.controllers;
 public class PositionsController
 {
     private readonly IPositionService _positionService;
+    private readonly ILogger<PositionsController> _logger;
 
-    public PositionsController(IPositionService positionService)
+    public PositionsController(IPositionService positionService, ILogger<PositionsController> logger)
     {
         _positionService = positionService;
+        _logger = logger;
     }
 
     [Authorize(Roles = "Admin")]
@@ -20,6 +23,8 @@ public class PositionsController
     [Route("/api/positions")]
     public async Task<IResult> GetAllPositions(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Get all positions request.");
+        
         try
         {
             var positions = await _positionService.GetAllPositions(cancellationToken);
@@ -30,6 +35,7 @@ public class PositionsController
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Get all positions failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }

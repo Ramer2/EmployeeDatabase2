@@ -11,10 +11,12 @@ namespace EmployeeManager.API.controllers;
 public class DevicesController : ControllerBase
 {
     private readonly IDeviceService _deviceService;
+    private readonly ILogger<DevicesController> _logger;
 
-    public DevicesController(IDeviceService deviceService)
+    public DevicesController(IDeviceService deviceService, ILogger<DevicesController> logger)
     {
         _deviceService = deviceService;
+        _logger = logger;
     }
 
     [Authorize(Roles = "Admin")]
@@ -22,6 +24,8 @@ public class DevicesController : ControllerBase
     [Route("/api/devices")]
     public async Task<IResult> GetAllDevices(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Get all devices request.");
+        
         try
         {
             var devices = await _deviceService.GetAllDevices(cancellationToken);
@@ -30,6 +34,7 @@ public class DevicesController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Get all devices failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }
@@ -39,6 +44,8 @@ public class DevicesController : ControllerBase
     [Route("/api/devices/types")]
     public async Task<IResult> GetAllDeviceTypes(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Get all device types request.");
+        
         try
         {
             var deviceTypes = await _deviceService.GetAllDeviceTypes(cancellationToken);
@@ -49,6 +56,7 @@ public class DevicesController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Get all device types failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }
@@ -58,6 +66,8 @@ public class DevicesController : ControllerBase
     [Route("/api/devices/{id}")]
     public async Task<IResult> GetDeviceById(int id, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Get device by id request.");
+        
         if (id < 0) return Results.BadRequest("Invalid id");
 
         try
@@ -82,14 +92,17 @@ public class DevicesController : ControllerBase
         }
         catch (AccessViolationException)
         {
+            _logger.LogWarning($"Access violation: {User.Identity.Name} request for get device by id {id} was denied.");
             return Results.Forbid();
         }
         catch (KeyNotFoundException ex)
         {
+            _logger.LogWarning($"No data for device with id {id}.");
             return Results.NotFound(ex.Message);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Get device by id failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }
@@ -99,6 +112,8 @@ public class DevicesController : ControllerBase
     [Route("/api/devices")]
     public async Task<IResult> CreateDevice([FromBody] CreateSpecificDeviceDto dto, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Create device request.");
+        
         if (!ModelState.IsValid) 
             return Results.BadRequest(ModelState);
         
@@ -109,10 +124,12 @@ public class DevicesController : ControllerBase
         }
         catch (ArgumentException ex)
         {
+            _logger.LogWarning($"Create device. {ex.Message}");
             return Results.BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
+            _logger.LogError("Create device failed.\n" + ex.Message + "\n" + ex.StackTrace);
             return Results.Problem(ex.Message);
         }
     }
@@ -122,6 +139,8 @@ public class DevicesController : ControllerBase
     [Route("/api/devices/{id}")]
     public async Task<IResult> UpdateDevice(int id, [FromBody] UpdateDeviceDto dto, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Update device request.");
+        
         if (!ModelState.IsValid) 
             return Results.BadRequest(ModelState);
         
@@ -134,16 +153,19 @@ public class DevicesController : ControllerBase
                 await _deviceService.UpdateDevice(id, dto, cancellationToken);
                 return Results.Ok();
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException ex)
             {
+                _logger.LogWarning($"Update device. {ex.Message}");
                 return Results.NotFound($"No device found with id: '{id}'");
             }
             catch (ArgumentException ex)
             {
+                _logger.LogWarning($"Update device. {ex.Message}");
                 return Results.BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
+                _logger.LogError("Update device for admin failed.\n" + ex.Message + "\n" + ex.StackTrace);
                 return Results.Problem(ex.Message);
             }            
         }
@@ -156,20 +178,24 @@ public class DevicesController : ControllerBase
                 await _deviceService.UpdateUsersDevice(email, dto, id, cancellationToken);
                 return Results.Ok();
             }
-            catch (AccessViolationException)
+            catch (AccessViolationException ex)
             {
+                _logger.LogWarning($"Update device access violation: {ex.Message}");
                 return Results.Forbid();
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException ex)
             {
+                _logger.LogWarning($"Update device. {ex.Message}");
                 return Results.NotFound($"No device found with id: '{id}'");
             }
             catch (ArgumentException ex)
             {
+                _logger.LogWarning($"Update device. {ex.Message}");
                 return Results.BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
+                _logger.LogError("Update device for user failed.\n" + ex.Message + "\n" + ex.StackTrace);
                 return Results.Problem(ex.Message);
             }
         }
@@ -180,6 +206,8 @@ public class DevicesController : ControllerBase
     [Route("/api/devices/{id}")]
     public async Task<IResult> DeleteDevice(int id, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Delete device request.");
+        
         if (id < 0) return Results.BadRequest("Invalid id");
         
         try
@@ -187,12 +215,14 @@ public class DevicesController : ControllerBase
             await _deviceService.DeleteDevice(id, cancellationToken);
             return Results.Ok();
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException ex)
         {
+            _logger.LogWarning($"Delete device. {ex.Message}");
             return Results.NotFound($"No device found with id: '{id}'");
         }
         catch (Exception ex)
         {
+            _logger.LogError("Delete device failed.\n" + ex.Message + "\n" + ex.StackTrace);
             return Results.Problem(ex.Message);
         }
     }

@@ -88,32 +88,32 @@ public class ValidationMiddleware
                 throw new JsonException("Invalid request body.");
             }
 
+            _logger.LogInformation("Validation was successful.");
             await _next(context);
         }
         catch (JsonException ex)
         {
             context.Response.StatusCode = 415;
             await context.Response.WriteAsync(ex.Message);
-            _logger.LogInformation("The request could not be deserialized.");
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError($"The request could not be deserialized. {ex}\n{ex.Message}");
         }
         catch (ApplicationException ex)
         {
             context.Response.StatusCode = 400;
             await context.Response.WriteAsync(ex.Message);
-            _logger.LogError($"Validation failed: {ex.Message}");
+            _logger.LogError($"Validation failed. {ex}\n{ex.Message}");
         }
         catch (KeyNotFoundException ex)
         {
             context.Response.StatusCode = 404;
             await context.Response.WriteAsync(ex.Message);
-            _logger.LogError($"Validation failed: {ex.Message}");
+            _logger.LogError($"Validation failed. {ex}");
         }
         catch (Exception ex)
         {
             context.Response.StatusCode = 500;
             await context.Response.WriteAsync(ex.Message);
-            _logger.LogError($"Unforseen error: {ex.Message}");
+            _logger.LogError($"Unforseen error. {ex}\n{ex.Message}");
         }
     }
 }

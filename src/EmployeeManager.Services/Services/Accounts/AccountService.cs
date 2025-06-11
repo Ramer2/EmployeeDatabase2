@@ -260,10 +260,6 @@ public class AccountService : IAccountService
         {
             throw;
         }
-        catch (ArgumentException)
-        {
-            throw;
-        }
         catch (Exception ex)
         {
             throw new ApplicationException("Error while updating personal data", ex);

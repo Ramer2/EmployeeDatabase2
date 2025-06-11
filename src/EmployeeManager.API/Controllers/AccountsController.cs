@@ -11,10 +11,12 @@ namespace EmployeeManager.API.controllers;
 public class AccountsController : ControllerBase
 {
     private readonly IAccountService _accountService;
+    private readonly ILogger<AccountsController> _logger;
     
-    public AccountsController(IAccountService accountService)
+    public AccountsController(IAccountService accountService, ILogger<AccountsController> logger)
     {
         _accountService = accountService;
+        _logger = logger;
     }
 
     [Authorize(Roles = "Admin")]
@@ -22,6 +24,8 @@ public class AccountsController : ControllerBase
     [Route("/api/accounts")]
     public async Task<IResult> GetAllAccounts(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Get all accounts request.");
+        
         try
         {
             var accounts = await _accountService.GetAllAccounts(cancellationToken);
@@ -32,6 +36,7 @@ public class AccountsController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Get all accounts failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }
@@ -41,6 +46,8 @@ public class AccountsController : ControllerBase
     [Route("/api/accounts/{id}")]
     public async Task<IResult> GetAccountById(int id, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Get account by id request.");
+        
         try
         {
             if (User.IsInRole("Admin")) // Admin
@@ -64,14 +71,17 @@ public class AccountsController : ControllerBase
         }
         catch (AccessViolationException)
         {
+            _logger.LogWarning($"Access violation: request for get account by id {id} was denied.");
             return Results.Forbid();
         }
         catch (KeyNotFoundException ex)
         {
+            _logger.LogWarning($"No data for account with id {id}.");
             return Results.NotFound(ex.Message);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Get account by id failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }
@@ -81,6 +91,8 @@ public class AccountsController : ControllerBase
     [Route("/api/accounts")]
     public async Task<IResult> CreateAccount([FromBody] CreateAccountDto newAccount, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Create account request.");
+        
         if (!ModelState.IsValid)
             return Results.BadRequest(ModelState);
 
@@ -91,10 +103,12 @@ public class AccountsController : ControllerBase
         }
         catch (KeyNotFoundException ex)
         {
+            _logger.LogWarning($"Create account. {ex.Message}");
             return Results.NotFound(ex.Message);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Create account failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }
@@ -104,12 +118,13 @@ public class AccountsController : ControllerBase
     [Route("/api/accounts/{id}")]
     public async Task<IResult> UpdateAccount(int id, [FromBody] UpdateAccountDto account, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Update account request.");
+        
         if (!ModelState.IsValid)
             return Results.BadRequest(ModelState);
 
         try
         {
-
             if (User.IsInRole("Admin")) // Admin
             {
                 await _accountService.UpdateAccount(id, account, cancellationToken);
@@ -126,20 +141,19 @@ public class AccountsController : ControllerBase
                 return Results.Ok();
             }
         }
-        catch (AccessViolationException)
+        catch (AccessViolationException ex)
         {
+            _logger.LogWarning($"Update account access violation: {ex.Message}");
             return Results.Forbid();
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.BadRequest(ex);
         }
         catch (KeyNotFoundException ex)
         {
+            _logger.LogWarning($"Update account. {ex.Message}");
             return Results.NotFound(ex.Message);
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Update account failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }
@@ -149,6 +163,8 @@ public class AccountsController : ControllerBase
     [Route("/api/accounts/{id}")]
     public async Task<IResult> DeleteAccount(int id, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Delete account request.");
+        
         try
         {
             await _accountService.DeleteAccount(id, cancellationToken);
@@ -156,10 +172,12 @@ public class AccountsController : ControllerBase
         }
         catch (KeyNotFoundException ex)
         {
+            _logger.LogWarning($"Delete account. {ex.Message}");
             return Results.NotFound(ex.Message);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex.Message + "\n" + ex.StackTrace);
             return Results.Problem(ex.Message);
         }
     }

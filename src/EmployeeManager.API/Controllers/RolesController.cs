@@ -9,10 +9,12 @@ namespace EmployeeManager.API.controllers;
 public class RolesController
 {
     private readonly IRoleService _roleService;
+    private readonly ILogger<RolesController> _logger;
 
-    public RolesController(IRoleService roleService)
+    public RolesController(IRoleService roleService, ILogger<RolesController> logger)
     {
         _roleService = roleService;
+        _logger = logger;
     }
 
     [Authorize(Roles = "Admin")]
@@ -20,6 +22,8 @@ public class RolesController
     [Route("/api/roles")]
     public async Task<IResult> GetAllRoles(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Get all roles request.");
+        
         try
         {
             var roles = await _roleService.GetAllRoles(cancellationToken);
@@ -30,6 +34,7 @@ public class RolesController
         }
         catch (Exception ex)
         {
+            _logger.LogError($"Get all roles failed.\n{ex.Message}\n{ex.StackTrace}");
             return Results.Problem(ex.Message);
         }
     }

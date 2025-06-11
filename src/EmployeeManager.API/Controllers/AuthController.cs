@@ -16,17 +16,21 @@ public class AuthController : ControllerBase
     private readonly EmployeeDatabaseContext _context;
     private readonly ITokenService _tokenService;
     private readonly PasswordHasher<Account> _passwordHasher = new();
+    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(EmployeeDatabaseContext context, ITokenService tokenService)
+    public AuthController(EmployeeDatabaseContext context, ITokenService tokenService, ILogger<AuthController> logger)
     {
         _context = context;
         _tokenService = tokenService;
+        _logger = logger;
     }
 
     [HttpPost]
     [Route("/api/auth")]
     public async Task<IResult> Auth(LoginUserDto user, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Authenticate request.");
+        
         try
         {
             var foundAccount = await _context.Accounts
@@ -54,6 +58,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError("Authentication failed.\n" + ex.Message + "\n" + ex.StackTrace);
             return Results.Problem(ex.Message);
         }
     }
