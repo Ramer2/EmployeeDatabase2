@@ -54,6 +54,7 @@ public class DeviceService : IDeviceService
             var deviceDto = new GetSpecificDeviceDto
             {
                 Name = device.Name,
+                IsEnabled = device.IsEnabled,
                 AdditionalProperties = device.AdditionalProperties.IsNullOrEmpty() ? null : JsonDocument.Parse(device.AdditionalProperties).RootElement,
                 Type = device.DeviceType.Name,
             };
